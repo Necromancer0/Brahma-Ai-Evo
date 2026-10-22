@@ -1,0 +1,40 @@
+name: Build Brahma Connect Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'brahma-connect-android/**'
+      - '.github/workflows/build-android.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build debug APK
+        working-directory: brahma-connect-android
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Brahma-Connect-debug-APK
+          path: brahma-connect-android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
